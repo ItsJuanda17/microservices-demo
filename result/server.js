@@ -12,6 +12,93 @@ var express = require('express'),
 
 var port = process.env.PORT || 4000;
 
+// ---------------------------------------------------------------------------
+// DbReadCircuitBreaker – «pattern: Circuit Breaker»
+// States: CLOSED (normal) → OPEN (failing) → HALF-OPEN (probing)
+// ---------------------------------------------------------------------------
+class DbReadCircuitBreaker {
+  constructor({ failureThreshold = 5, successThreshold = 2, openTimeout = 10000 } = {}) {
+    this.state = 'CLOSED';
+    this.failureCount = 0;
+    this.successCount = 0;
+    this.failureThreshold = failureThreshold;
+    this.successThreshold = successThreshold;
+    this.openTimeout = openTimeout;
+    this.lastFailureTime = null;
+  }
+
+  async call(fn) {
+    if (this.state === 'OPEN') {
+      if (Date.now() - this.lastFailureTime > this.openTimeout) {
+        this.state = 'HALF-OPEN';
+        this.successCount = 0;
+        this.failureCount = 0;
+        console.log('[CircuitBreaker] State: HALF-OPEN (probing)');
+      } else {
+        throw new Error('Circuit breaker is OPEN – call rejected');
+      }
+    }
+
+    try {
+      const result = await fn();
+      this._onSuccess();
+      return result;
+    } catch (err) {
+      this._onFailure();
+      throw err;
+    }
+  }
+
+  _onSuccess() {
+    if (this.state === 'HALF-OPEN') {
+      this.successCount++;
+      if (this.successCount >= this.successThreshold) {
+        this.state = 'CLOSED';
+        this.failureCount = 0;
+        console.log('[CircuitBreaker] State: CLOSED (recovered)');
+      }
+    } else {
+      this.failureCount = 0;
+    }
+  }
+
+  _onFailure() {
+    this.failureCount++;
+    this.lastFailureTime = Date.now();
+    if (this.state === 'HALF-OPEN') {
+      this.state = 'OPEN';
+      console.log('[CircuitBreaker] State: OPEN (half-open probe failed)');
+    } else if (this.failureCount >= this.failureThreshold) {
+      this.state = 'OPEN';
+      console.log(`[CircuitBreaker] State: OPEN after ${this.failureCount} failures`);
+    }
+  }
+}
+
+var circuitBreaker = new DbReadCircuitBreaker({
+  failureThreshold: 5,
+  successThreshold: 2,
+  openTimeout: 10000
+});
+
+// ---------------------------------------------------------------------------
+// ResultsDbReader – actual DB read through the circuit breaker
+// ---------------------------------------------------------------------------
+function resultsDbReader(client) {
+  return new Promise((resolve, reject) => {
+    client.query(
+      'SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote',
+      [],
+      function (err, result) {
+        if (err) reject(err);
+        else resolve(result);
+      }
+    );
+  });
+}
+
+// ---------------------------------------------------------------------------
+
 io.sockets.on('connection', function (socket) {
   socket.emit('message', { text: 'Welcome!' });
 
@@ -44,23 +131,21 @@ async.retry(
   }
 );
 
+// ResultsPollingService → ResultsQueryServer → DbReadCircuitBreaker → ResultsDbReader
 function getVotes(client) {
-  client.query(
-    'SELECT vote, COUNT(id) AS count FROM votes GROUP BY vote',
-    [],
-    function (err, result) {
-      if (err) {
-        console.error('Error performing query: ' + err);
-      } else {
-        var votes = collectVotesFromResult(result);
-        io.sockets.emit('scores', JSON.stringify(votes));
-      }
-
+  circuitBreaker.call(() => resultsDbReader(client))
+    .then(function (result) {
+      var votes = collectVotesFromResult(result);
+      io.sockets.emit('scores', JSON.stringify(votes));
+    })
+    .catch(function (err) {
+      console.error('[CircuitBreaker] Query failed: ' + err.message);
+    })
+    .finally(function () {
       setTimeout(function () {
         getVotes(client);
       }, 1000);
-    }
-  );
+    });
 }
 
 function collectVotesFromResult(result) {

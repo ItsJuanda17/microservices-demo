@@ -74,6 +74,7 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
 		if time.Since(cb.lastFailure) > cb.openTimeout {
 			cb.state = StateHalfOpen
 			cb.successCount = 0
+			cb.failureCount = 0
 			fmt.Println("[CircuitBreaker] State: HALF-OPEN (probing)")
 		} else {
 			cb.mu.Unlock()
@@ -89,7 +90,10 @@ func (cb *CircuitBreaker) Call(fn func() error) error {
 	if err != nil {
 		cb.failureCount++
 		cb.lastFailure = time.Now()
-		if cb.failureCount >= cb.failureThreshold {
+		if cb.state == StateHalfOpen {
+			cb.state = StateOpen
+			fmt.Println("[CircuitBreaker] State: OPEN (half-open probe failed)")
+		} else if cb.failureCount >= cb.failureThreshold {
 			cb.state = StateOpen
 			fmt.Printf("[CircuitBreaker] State: OPEN after %d failures\n", cb.failureCount)
 		}
@@ -222,6 +226,7 @@ func openDatabase() *sql.DB {
 		if err == nil {
 			return db
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -232,6 +237,7 @@ func pingDatabase(db *sql.DB) {
 			fmt.Println("Postgresql connected!")
 			return
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
@@ -249,5 +255,6 @@ func getKafkaConsumerGroup() sarama.ConsumerGroup {
 			fmt.Println("Kafka connected! Consumer group: " + *groupID)
 			return group
 		}
+		time.Sleep(1 * time.Second)
 	}
 }

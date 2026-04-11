@@ -316,7 +316,7 @@ Los dos patrones de diseño están resaltados visualmente:
 - 🟢 **Competing Consumers** — `worker-service`: tres réplicas `VoteProcessor` comparten el mismo Consumer Group, cada una procesa particiones distintas del topic `votes`.
 - 🟡 **Circuit Breaker** — `DbWriteCircuitBreaker` (escrituras Worker → PostgreSQL) y `DbReadCircuitBreaker` (lecturas Result → PostgreSQL).
 
-![Diagrama de arquitectura UML](docs/architecture.png)
+![Diagrama de arquitectura UML](./architecture.png)
 
 > **Archivo editable:** [`Ingesoft.drawio`](Ingesoft.drawio) — abrir con [draw.io](https://app.diagrams.net/).
 

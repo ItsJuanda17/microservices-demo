@@ -17,8 +17,8 @@
     <div id="content-container-center">
         <h3 th:text="'' + ${optionA} + ' vs ' + ${optionB} + '!'"></h3>
         <form id="choice" name='form' method="POST" action="/">
-            <button id="a" type="submit" name="vote" class="a" value="a" th:field="*{vote}" th:text="${optionA}"></button>
-            <button id="b" type="submit" name="vote" class="b" value="b" th:field="*{vote}" th:text="${optionB}"></button>
+            <button id="a" type="submit" name="vote" class="a" value="a" th:text="${optionA}"></button>
+            <button id="b" type="submit" name="vote" class="b" value="b" th:text="${optionB}"></button>
         </form>
         <div id="tip">
             (Tip: you can change your vote)

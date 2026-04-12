@@ -26,11 +26,6 @@ variable "resource_group_name" {
   default     = "microservices-demo-rg"
 }
 
-variable "acr_name" {
-  description = "Azure Container Registry name"
-  default     = "microservicesdemo"
-}
-
 variable "db_username" {
   description = "PostgreSQL admin username"
   default     = "postgres"

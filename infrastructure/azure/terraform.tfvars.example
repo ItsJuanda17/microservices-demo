@@ -1,0 +1,7 @@
+environment              = "dev"
+location                = "eastus"
+resource_group_name     = "microservices-demo-rg"
+db_username             = "postgres"
+db_password             = "your-secure-password-here"
+github_username         = "your-github-username"
+github_token            = "your-github-token"

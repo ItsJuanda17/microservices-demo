@@ -53,11 +53,6 @@ output "result_service_ip" {
   description = "Result service IP address"
 }
 
-output "postgres_ip" {
-  value       = azurerm_container_group.postgres.ip_address
-  description = "PostgreSQL container IP address"
-}
-
 output "kafka_ip" {
   value       = azurerm_container_group.kafka.ip_address
   description = "Kafka container IP address"

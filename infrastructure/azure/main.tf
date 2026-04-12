@@ -27,19 +27,6 @@ resource "azurerm_subnet" "main" {
   }
 }
 
-# Network Interface for ACI
-resource "azurerm_network_interface" "aci" {
-  name                = "aci-nic"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  ip_configuration {
-    name                          = "testConfiguration"
-    subnet_id                     = azurerm_subnet.main.id
-    private_ip_address_allocation = "Dynamic"
-  }
-}
-
 # PostgreSQL Database Server
 resource "azurerm_postgresql_server" "main" {
   name                = "microservices-db-${var.environment}"
@@ -80,43 +67,9 @@ resource "azurerm_postgresql_firewall_rule" "allow_azure" {
   end_ip_address      = "0.0.0.0"
 }
 
-# Container Instance: PostgreSQL
-resource "azurerm_container_group" "postgres" {
-  name                = "postgres-container"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-  os_type             = "Linux"
-  ip_address_type     = "Public"
-  dns_name_label      = "postgres-${var.environment}"
 
-  container {
-    name   = "postgres"
-    image  = "postgres:16"
-    cpu    = "0.5"
-    memory = "1"
 
-    ports {
-      port     = 5432
-      protocol = "TCP"
-    }
-
-    environment_variables = {
-      POSTGRES_USER     = var.db_username
-      POSTGRES_PASSWORD = var.db_password
-      POSTGRES_DB       = "votes"
-    }
-
-    volume {
-      name                = "db-volume"
-      mount_path          = "/var/lib/postgresql/data"
-      storage_account_name = azurerm_storage_account.main.name
-      storage_account_key = azurerm_storage_account.main.primary_access_key
-      share_name          = azurerm_storage_share.db.name
-    }
-  }
-}
-
-# Container Instance: Kafka
+# Container Instance: Kafka (KRaft mode - without Zookeeper)
 resource "azurerm_container_group" "kafka" {
   name                = "kafka-container"
   location            = azurerm_resource_group.main.location
@@ -137,26 +90,19 @@ resource "azurerm_container_group" "kafka" {
     }
 
     environment_variables = {
-      KAFKA_ZOOKEEPER_CONNECT  = "localhost:2181"
-      KAFKA_ADVERTISED_LISTENERS = "PLAINTEXT://kafka-${var.environment}.${var.location}.azurecontainer.io:9092"
+      KAFKA_NODE_ID                    = "1"
+      KAFKA_PROCESS_ROLES              = "broker,controller"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = "1"
-      KAFKA_NUM_PARTITIONS = "3"
+      KAFKA_CONTROLLER_QUORUM_VOTERS   = "1@localhost:9093"
+      KAFKA_LISTENERS                  = "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS       = "PLAINTEXT://kafka-${var.environment}.${var.location}.azurecontainer.io:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME = "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES  = "CONTROLLER"
+      KAFKA_NUM_PARTITIONS             = "3"
+      CLUSTER_ID                       = "MkwNYQ3MR0KYjJAXO6e5pQ"
     }
   }
 }
 
-# Storage Account for volumes
-resource "azurerm_storage_account" "main" {
-  name                     = "microservicesdb${var.environment}"
-  resource_group_name      = azurerm_resource_group.main.name
-  location                 = azurerm_resource_group.main.location
-  account_tier             = "Standard"
-  account_replication_type = "LRS"
-}
 
-# Storage Share for PostgreSQL
-resource "azurerm_storage_share" "db" {
-  name                 = "postgres-share"
-  storage_account_name = azurerm_storage_account.main.name
-  quota                = 50
-}

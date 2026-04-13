@@ -8,14 +8,19 @@ output "resource_group_id" {
   description = "ID of the resource group"
 }
 
-output "postgresql_server_name" {
-  value       = azurerm_postgresql_server.main.name
-  description = "PostgreSQL server name"
+output "postgresql_container_fqdn" {
+  value       = azurerm_container_group.postgresql.fqdn
+  description = "PostgreSQL container FQDN"
 }
 
-output "postgresql_server_fqdn" {
-  value       = azurerm_postgresql_server.main.fqdn
-  description = "PostgreSQL server FQDN"
+output "postgresql_container_ip" {
+  value       = azurerm_container_group.postgresql.ip_address
+  description = "PostgreSQL container IP address"
+}
+
+output "postgresql_port" {
+  value       = 5432
+  description = "PostgreSQL port"
 }
 
 output "kafka_host" {

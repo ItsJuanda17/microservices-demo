@@ -4,67 +4,33 @@ resource "azurerm_resource_group" "main" {
   location = var.location
 }
 
-# Virtual Network
-resource "azurerm_virtual_network" "main" {
-  name                = "${var.resource_group_name}-vnet"
-  address_space       = ["10.0.0.0/16"]
+# PostgreSQL as Container
+resource "azurerm_container_group" "postgresql" {
+  name                = "postgresql-container"
   location            = azurerm_resource_group.main.location
   resource_group_name = azurerm_resource_group.main.name
-}
+  os_type             = "Linux"
+  ip_address_type     = "Public"
+  dns_name_label      = "postgresql-${var.environment}"
+  restart_policy      = "Always"
 
-resource "azurerm_subnet" "main" {
-  name                 = "default-subnet"
-  resource_group_name  = azurerm_resource_group.main.name
-  virtual_network_name = azurerm_virtual_network.main.name
-  address_prefixes     = ["10.0.1.0/24"]
+  container {
+    name   = "postgres"
+    image  = "postgres:16-alpine"
+    cpu    = 1
+    memory = 1.5
 
-  delegation {
-    name = "aciDelegation"
-    service_delegation {
-      name    = "Microsoft.ContainerInstance/containerGroups"
-      actions = ["Microsoft.Network/virtualNetworks/subnets/action"]
+    environment_variables = {
+      "POSTGRES_USER"     = var.db_username
+      "POSTGRES_PASSWORD" = var.db_password
+      "POSTGRES_DB"       = "votes"
+    }
+
+    ports {
+      port     = 5432
+      protocol = "TCP"
     }
   }
-}
-
-# PostgreSQL Database Server
-resource "azurerm_postgresql_server" "main" {
-  name                = "microservices-db-${var.environment}"
-  location            = azurerm_resource_group.main.location
-  resource_group_name = azurerm_resource_group.main.name
-
-  administrator_login          = var.db_username
-  administrator_login_password = var.db_password
-
-  sku_name                     = "B_Gen5_1"
-  storage_mb                   = 51200
-  backup_retention_days        = 7
-  geo_redundant_backup_enabled = false
-  auto_grow_enabled            = true
-  version                      = "11"
-
-  ssl_enforcement_enabled          = true
-  ssl_minimal_tls_version_enforced = "TLS1_2"
-
-  public_network_access_enabled = true
-}
-
-# PostgreSQL Database
-resource "azurerm_postgresql_database" "votes" {
-  name                = "votes"
-  resource_group_name = azurerm_resource_group.main.name
-  server_name         = azurerm_postgresql_server.main.name
-  charset             = "UTF8"
-  collation           = "en_US.utf8"
-}
-
-# Firewall rule for PostgreSQL (allow Azure services)
-resource "azurerm_postgresql_firewall_rule" "allow_azure" {
-  name                = "AllowAzureServices"
-  resource_group_name = azurerm_resource_group.main.name
-  server_name         = azurerm_postgresql_server.main.name
-  start_ip_address    = "0.0.0.0"
-  end_ip_address      = "0.0.0.0"
 }
 
 

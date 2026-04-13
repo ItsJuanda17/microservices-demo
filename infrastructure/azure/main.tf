@@ -56,17 +56,17 @@ resource "azurerm_container_group" "kafka" {
     }
 
     environment_variables = {
-      KAFKA_NODE_ID                    = "1"
-      KAFKA_PROCESS_ROLES              = "broker,controller"
+      KAFKA_NODE_ID                          = "1"
+      KAFKA_PROCESS_ROLES                    = "broker,controller"
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR = "1"
-      KAFKA_CONTROLLER_QUORUM_VOTERS   = "1@localhost:9093"
-      KAFKA_LISTENERS                  = "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
-      KAFKA_ADVERTISED_LISTENERS       = "PLAINTEXT://kafka-${var.environment}.${var.location}.azurecontainer.io:9092"
-      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP = "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
-      KAFKA_INTER_BROKER_LISTENER_NAME = "PLAINTEXT"
-      KAFKA_CONTROLLER_LISTENER_NAMES  = "CONTROLLER"
-      KAFKA_NUM_PARTITIONS             = "3"
-      CLUSTER_ID                       = "MkwNYQ3MR0KYjJAXO6e5pQ"
+      KAFKA_CONTROLLER_QUORUM_VOTERS         = "1@localhost:9093"
+      KAFKA_LISTENERS                        = "PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093"
+      KAFKA_ADVERTISED_LISTENERS             = "PLAINTEXT://kafka-${var.environment}.${var.location}.azurecontainer.io:9092"
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP   = "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+      KAFKA_INTER_BROKER_LISTENER_NAME       = "PLAINTEXT"
+      KAFKA_CONTROLLER_LISTENER_NAMES        = "CONTROLLER"
+      KAFKA_NUM_PARTITIONS                   = "3"
+      CLUSTER_ID                             = "MkwNYQ3MR0KYjJAXO6e5pQ"
     }
   }
 }

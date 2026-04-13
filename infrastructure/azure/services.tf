@@ -46,10 +46,10 @@ resource "azurerm_container_group" "worker" {
     }
 
     environment_variables = {
-      KAFKA_BROKER       = "kafka-${var.environment}.${var.location}.azurecontainer.io:9092"
-      KAFKA_GROUP        = "worker-group"
-      KAFKA_TOPIC        = "votes"
-      DATABASE_URL       = "postgres://${var.db_username}:${var.db_password}@postgresql-${var.environment}.${var.location}.azurecontainer.io:5432/votes"
+      KAFKA_BROKER              = "kafka-${var.environment}.${var.location}.azurecontainer.io:9092"
+      KAFKA_GROUP               = "worker-group"
+      KAFKA_TOPIC               = "votes"
+      DATABASE_URL              = "postgres://${var.db_username}:${var.db_password}@postgresql-${var.environment}.${var.location}.azurecontainer.io:5432/votes"
       CIRCUIT_BREAKER_THRESHOLD = "5"
       CIRCUIT_BREAKER_TIMEOUT   = "10"
     }
@@ -77,8 +77,8 @@ resource "azurerm_container_group" "result" {
     }
 
     environment_variables = {
-      DATABASE_URL = "postgres://${var.db_username}:${var.db_password}@postgresql-${var.environment}.${var.location}.azurecontainer.io:5432/votes"
-      NODE_ENV     = var.environment
+      DATABASE_URL              = "postgres://${var.db_username}:${var.db_password}@postgresql-${var.environment}.${var.location}.azurecontainer.io:5432/votes"
+      NODE_ENV                  = var.environment
       CIRCUIT_BREAKER_THRESHOLD = "5"
       CIRCUIT_BREAKER_TIMEOUT   = "10"
     }

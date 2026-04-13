@@ -14,6 +14,7 @@ import java.util.Map;
 
 @Configuration
 public class KafkaProducerConfig {
+// Demo CI/CD Pipeline v1
 
     @Value("${KAFKA_BROKER:kafka:9092}")
     private String kafkaBroker;

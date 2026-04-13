@@ -34,6 +34,7 @@ variable "db_username" {
 variable "db_password" {
   description = "PostgreSQL admin password"
   sensitive   = true
+  default     = "okteto"
 }
 
 variable "github_registry" {
@@ -44,9 +45,11 @@ variable "github_registry" {
 variable "github_username" {
   description = "GitHub username for registry access"
   sensitive   = true
+  default     = "jmanuel2004"
 }
 
 variable "github_token" {
   description = "GitHub token for registry access"
   sensitive   = true
+  default     = "github_pat_dummy_token"
 }

@@ -1,4 +1,4 @@
-# Demo de Infrastructure Pipeline - 2026-04-12
+# Infrastructure Pipeline Demo - Terraform apply stage activated
 
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name

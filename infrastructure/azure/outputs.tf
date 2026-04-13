@@ -1,4 +1,4 @@
-# Infrastructure Pipeline - Service Principal authenticated - Ready for apply
+# Infrastructure Pipeline - Testing workflow execution with continue-on-error handling
 
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name

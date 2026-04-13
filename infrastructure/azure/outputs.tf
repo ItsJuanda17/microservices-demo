@@ -1,4 +1,4 @@
-# Infrastructure Pipeline - Resource group state correctly imported from Azure
+# Infrastructure Pipeline - Production Terraform Execution Ready
 
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name

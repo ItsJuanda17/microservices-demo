@@ -1,4 +1,4 @@
-# Result Service - CI/CD Pipeline Test
+# Result Service - Full Pipeline Test Ready
 FROM node:22.12.0-slim
 
 # add curl for healthcheck

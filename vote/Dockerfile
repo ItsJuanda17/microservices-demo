@@ -1,4 +1,4 @@
-# Build stage
+# Build stage - CI/CD Pipeline Test
 FROM maven:3.9.9-eclipse-temurin-22 AS builder
 
 WORKDIR /app

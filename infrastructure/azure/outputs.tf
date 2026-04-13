@@ -1,4 +1,4 @@
-# Infrastructure Pipeline - Testing workflow execution with continue-on-error handling
+# Infrastructure Pipeline - Resource group state correctly imported from Azure
 
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name

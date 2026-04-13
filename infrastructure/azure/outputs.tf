@@ -1,4 +1,4 @@
-# Infrastructure Pipeline with GitHub Secrets - Pipeline execution test
+# Infrastructure Pipeline - Service Principal authenticated - Ready for apply
 
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name

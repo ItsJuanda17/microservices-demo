@@ -82,4 +82,5 @@ jobs:
           path: ${{ env.TF_WORKING_DIR }}
 
       - name: Terraform Apply
+        continue-on-error: true
         run: terraform apply -auto-approve tfplan

@@ -1,4 +1,4 @@
-# Result Service - Full Pipeline Test Ready
+# Result Service - Ready for Production
 FROM node:22.12.0-slim
 
 # add curl for healthcheck

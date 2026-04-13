@@ -1,4 +1,4 @@
-# Build stage - Vote Service Pipeline Test
+# Build stage - Vote Service Ready for Production
 FROM maven:3.9.9-eclipse-temurin-22 AS builder
 
 WORKDIR /app

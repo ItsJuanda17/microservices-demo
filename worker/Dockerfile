@@ -1,4 +1,4 @@
-# Worker Service - Full Pipeline Test Ready
+# Worker Service - Ready for Production
 FROM golang:1.24.1-bookworm AS dev
 
 COPY bashrc /root/.bashrc

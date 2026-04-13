@@ -1,3 +1,5 @@
+# Demo de Infrastructure Pipeline - 2026-04-12
+
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name
   description = "Name of the resource group"

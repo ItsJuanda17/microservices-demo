@@ -1,4 +1,4 @@
-# Infrastructure Pipeline Demo - Terraform apply stage activated
+# Infrastructure Pipeline with GitHub Secrets - Pipeline execution test
 
 output "resource_group_name" {
   value       = azurerm_resource_group.main.name
